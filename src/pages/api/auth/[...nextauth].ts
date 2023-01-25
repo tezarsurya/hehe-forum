@@ -36,9 +36,7 @@ export const authOptions = {
       const checkUser = await client
         .createIfNotExists(doc)
         .then((result) => true)
-        .catch((error) => {
-          return false;
-        });
+        .catch((error) => false);
       return checkUser;
     },
   },
