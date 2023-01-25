@@ -1,5 +1,6 @@
 import NextAuth from "next-auth/next";
 import GithubProvider from "next-auth/providers/github";
+import { createClient } from "next-sanity";
 
 export const authOptions = {
   providers: [
@@ -16,41 +17,24 @@ export const authOptions = {
   },
   callbacks: {
     async signIn({ user }: any) {
-      console.log(user);
-      const mutations = {
-        mutations: [
-          {
-            createIfNotExists: {
-              _id: user.id,
-              _type: "user",
-              email: user.email,
-              name: user.name,
-              image: user.image,
-            },
-          },
-        ],
-      };
-      const checkUser = await fetch(
-        `https://0i0lc7l1.api.sanity.io/v2021-03-25/data/mutate/production`,
-        {
-          method: "post",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.SANITY_TOKEN}`,
-          },
-          body: JSON.stringify(mutations),
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          return true;
-        })
-        .catch((error) => {
-          console.log(error);
-          return false;
-        });
+      const client = createClient({
+        projectId: "",
+        dataset: "production",
+        apiVersion: "2023-01-25",
+        useCdn: true,
+      });
 
+      const doc = {
+        _id: user.id,
+        _type: "user",
+        email: user.email,
+        name: user.name,
+        image: user.image,
+      };
+      const checkUser = await client
+        .createIfNotExists(doc)
+        .then((result) => true)
+        .catch((error) => false);
       return checkUser;
     },
     async jwt({ token, account, profile }: any) {
