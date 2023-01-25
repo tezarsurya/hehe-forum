@@ -4,7 +4,7 @@ import Image from "next/image";
 const App = () => {
   const { status, data } = useSession();
   return (
-    <div>
+    <div className="min-h-screen w-full bg-lightGray">
       {status === "authenticated" ? (
         <button onClick={() => signOut()}>Sign Out</button>
       ) : status === "loading" ? (
