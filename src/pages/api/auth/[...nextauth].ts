@@ -6,6 +6,13 @@ export const authOptions = {
     GithubProvider({
       clientId: process.env.GH_CLIENT_ID,
       clientSecret: process.env.GH_CLIENT_SECRET,
+      authorization: {
+        url: "https://github.com/login/oauth/authorize",
+        params: {
+          scope: "user",
+          redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/github`,
+        },
+      },
     }),
   ],
 };
