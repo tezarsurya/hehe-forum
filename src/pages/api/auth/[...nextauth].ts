@@ -12,15 +12,17 @@ export const authOptions = {
       },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     maxAge: 2 * 24 * 60 * 60,
   },
   callbacks: {
-    async signIn({ user }: any) {
+    async signIn({ user, profile }: any) {
       const client = createClient({
-        projectId: "",
+        projectId: "0i0lc7l1",
         dataset: "production",
-        apiVersion: "2023-01-25",
+        apiVersion: "2021-03-25",
+        token: process.env.SANITY_TOKEN,
         useCdn: true,
       });
 
@@ -28,18 +30,16 @@ export const authOptions = {
         _id: user.id,
         _type: "user",
         email: user.email,
-        name: user.name,
+        name: profile.login,
         image: user.image,
       };
       const checkUser = await client
         .createIfNotExists(doc)
         .then((result) => true)
-        .catch((error) => false);
+        .catch((error) => {
+          return false;
+        });
       return checkUser;
-    },
-    async jwt({ token, account, profile }: any) {
-      console.log(token, account, profile);
-      return token;
     },
   },
 };
