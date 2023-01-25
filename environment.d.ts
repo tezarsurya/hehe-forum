@@ -6,6 +6,7 @@ declare global {
       GH_CLIENT_ID: string;
       GH_CLIENT_SECRET: string;
       NEXTAUTH_URL: string;
+      SANITY_TOKEN: string;
     }
   }
 }
