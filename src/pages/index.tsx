@@ -1,30 +1,22 @@
-import { signIn, useSession, signOut } from "next-auth/react";
-import Image from "next/image";
+import PostContainer from "@/components/PostContainer";
+import TransitionLoading from "@/components/TransitionLoading";
+import UserInput from "@/components/UserInput";
+import Welcome from "@/components/Welcome";
+import { useSession } from "next-auth/react";
 
 const App = () => {
   const { status, data } = useSession();
   return (
-    <div className="min-h-screen w-full bg-lightGray">
-      {status === "authenticated" ? (
-        <button onClick={() => signOut()}>Sign Out</button>
+    <div className="grid min-h-screen w-full grid-cols-1 bg-veryLightGray">
+      {status === "unauthenticated" ? (
+        <Welcome />
       ) : status === "loading" ? (
-        <h1>Loading....</h1>
+        <TransitionLoading />
       ) : (
-        <button onClick={() => signIn("github")}>Sign In With Github</button>
-      )}
-      {status === "authenticated" && (
-        <>
-          <h3>{data?.user?.name || ""}</h3>
-          {data.user?.image && (
-            <Image
-              src={data.user?.image}
-              alt="user avatar"
-              width={24}
-              height={24}
-              priority
-            />
-          )}
-        </>
+        <div className="mx-auto flex h-screen w-full flex-col justify-between gap-8 py-8 px-6 md:w-10/12 md:px-0 lg:w-6/12 2xl:w-5/12">
+          <PostContainer />
+          <UserInput />
+        </div>
       )}
     </div>
   );
