@@ -13,6 +13,7 @@ const query = `
     isReply,
     _createdAt,
     author->{
+      _id,
       name,
       email
     },
