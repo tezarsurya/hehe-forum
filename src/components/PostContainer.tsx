@@ -12,11 +12,8 @@ const query = `
     vote,
     isReply,
     _createdAt,
-    author->{
-      _id,
-      name,
-      email
-    },
+    "authorName":author->name,
+    "authorEmail":author->email,
     replyTo->{
       _id,
       "author":author->name
