@@ -1,8 +1,10 @@
+import { replyAtom } from "@/lib/jotai/atoms";
 import { sanityClient } from "@/sanity";
-import React, { useEffect } from "react";
+import { useSetAtom } from "jotai";
+import { useEffect } from "react";
 
 const query = `
-  *[_type == 'post' && isReply == true && references($ids)] | order(_createdAt asc) {
+  *[_type == 'post' && isReply == true && references($IDs)] | order(_createdAt asc) {
     _id,
     content,
     vote,
@@ -17,20 +19,18 @@ const query = `
     parent->{_id}
   }`;
 
-export const useFetchReplies = (ids: Array<string>) => {
-  const [replies, setReplies] = React.useState<Array<any>>([]);
-
-  const fetchReplies = async (ids: Array<string>) => {
-    const params = { ids };
-    const result = await sanityClient.fetch(query, params);
-    return setReplies([...result]);
-  };
+export const useFetchReplies = (IDs: Array<string>) => {
+  const setReplies = useSetAtom(replyAtom);
 
   useEffect(() => {
-    if (ids.length > 0) {
-      fetchReplies(ids);
-    }
-  }, [ids]);
+    const fetchReplies = async () => {
+      const params = { IDs };
+      const result = await sanityClient.fetch(query, params);
+      setReplies([...result]);
+    };
 
-  return replies;
+    if (IDs.length > 0) {
+      fetchReplies();
+    }
+  }, [IDs, setReplies]);
 };
