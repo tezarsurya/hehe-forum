@@ -9,7 +9,7 @@ import {
 import { sanityClient } from "@/sanity";
 import { useQuery } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";
-import { UIEvent, useEffect, useState } from "react";
+import { UIEvent, useState } from "react";
 import Post from "./Post";
 import ReplyContainer from "./ReplyContainer";
 
@@ -88,10 +88,6 @@ const PostContainer = () => {
       }
     }
   };
-
-  useEffect(() => {
-    console.log(pagination);
-  }, [pagination]);
 
   if (isLoading || isRefetching) {
     return <div className="grid h-full place-items-center">Loading...</div>;
