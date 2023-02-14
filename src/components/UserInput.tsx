@@ -27,7 +27,6 @@ const UserInput = () => {
     e.preventDefault();
     e.currentTarget.reset();
     setIsLoading(true);
-    console.log(data);
 
     const result = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/createPost`,
