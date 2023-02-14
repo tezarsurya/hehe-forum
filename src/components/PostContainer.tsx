@@ -1,7 +1,15 @@
 import { useFetchReplies } from "@/hooks/useFetchReplies";
+import {
+  countPosts,
+  paginationAtom,
+  postAtom,
+  postIDs,
+  replyAtom,
+} from "@/lib/jotai/atoms";
 import { sanityClient } from "@/sanity";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useAtom, useAtomValue } from "jotai";
+import { UIEvent, useEffect, useState } from "react";
 import Post from "./Post";
 import ReplyContainer from "./ReplyContainer";
 
@@ -14,32 +22,78 @@ const query = `
     _createdAt,
     "authorName":author->name,
     "authorEmail":author->email,
-    replyTo->{
-      _id,
-      "author":author->name
-    },
-    parent->{_id}
-  }`;
+  }[$from...$to]`;
+
+const countQuery = `count(*[_type == 'post' && isReply == false])`;
 
 const PostContainer = () => {
-  const [postIDs, setPostIDs] = useState<Array<string>>([]);
-  const { isLoading, isError, data, error } = useQuery({
+  const [posts, setPosts] = useAtom(postAtom);
+  const [IDs, setPostIDs] = useAtom(postIDs);
+  const [postCount, setPostCount] = useAtom(countPosts);
+  const [pagination, setPagination] = useAtom(paginationAtom);
+  const [isLoadMore, setIsLoadMore] = useState(false);
+  const replies = useAtomValue(replyAtom);
+
+  const { isLoading, isError, data, error, isRefetching } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => {
-      const posts = await sanityClient.fetch(query);
-      return posts;
+      const params = { from: 0, to: pagination.to };
+      const posts = await sanityClient.fetch(query, params);
+      const count = await sanityClient.fetch(countQuery);
+      return { posts, count };
     },
     onSuccess(data) {
+      const { posts, count } = data;
       let IDs: Array<string> = [];
-      data.forEach((post: any) => {
+      posts.forEach((post: any) => {
         IDs.push(post._id);
       });
+
+      setPostCount(count);
       setPostIDs([...IDs]);
+      setPosts([...posts]);
     },
   });
-  const replies = useFetchReplies(postIDs);
 
-  if (isLoading) {
+  useFetchReplies(IDs);
+
+  const handleScroll = async (e: UIEvent<HTMLDivElement>) => {
+    const scrollHeight = e.currentTarget.scrollHeight;
+    const scrollY = e.currentTarget.scrollTop;
+    const elementHeight = e.currentTarget.clientHeight;
+
+    let scrollDiff = scrollHeight - elementHeight + scrollY;
+
+    if (scrollDiff === 0) {
+      if (postCount > pagination.to) {
+        setIsLoadMore(true);
+        const params = { from: pagination.to, to: pagination.to + 7 };
+        setPagination((current) => ({
+          from: current.to,
+          to: current.to + 7,
+        }));
+
+        await sanityClient
+          .fetch(query, params)
+          .then((morePosts) => {
+            let IDs: Array<string> = [];
+            morePosts.forEach((post: any) => {
+              IDs.push(post._id);
+            });
+
+            setPostIDs([...IDs]);
+            setPosts([...posts, ...morePosts]);
+          })
+          .finally(() => setIsLoadMore(false));
+      }
+    }
+  };
+
+  useEffect(() => {
+    console.log(pagination);
+  }, [pagination]);
+
+  if (isLoading || isRefetching) {
     return <div className="grid h-full place-items-center">Loading...</div>;
   }
 
@@ -48,11 +102,11 @@ const PostContainer = () => {
   }
 
   return (
-    <div className="flex h-full flex-col-reverse gap-4 overflow-y-auto">
-      {data.map((post: any) => {
-        if (post.isReply) {
-          return;
-        }
+    <div
+      onScroll={handleScroll}
+      className="flex h-full flex-col-reverse gap-4 overflow-y-auto"
+    >
+      {posts.map((post: any) => {
         const currentReplies = replies.filter(
           (postFilter: any) => postFilter.parent._id === post._id
         );
@@ -62,14 +116,15 @@ const PostContainer = () => {
             <Post data={post} />
             {currentReplies.length > 0 ? (
               <ReplyContainer>
-                {currentReplies.map((filtered: any) => (
-                  <Post key={filtered._id} data={filtered} />
+                {currentReplies.map((reply: any) => (
+                  <Post key={reply._id} data={reply} />
                 ))}
               </ReplyContainer>
             ) : null}
           </div>
         );
       })}
+      {isLoadMore ? <div className="w-full text-center">Loading...</div> : null}
     </div>
   );
 };
