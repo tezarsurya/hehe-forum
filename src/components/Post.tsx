@@ -28,7 +28,14 @@ const Post = ({ data }: any) => {
             <ReplyButton />
           </span>
         </div>
-        <p className="whitespace-pre-wrap text-darkBlue">{data.content}</p>
+        <p className="whitespace-pre-wrap text-darkBlue">
+          {data.isReply ? (
+            <span className="font-bold text-moderateBlue">
+              @{data.replyTo.author}
+            </span>
+          ) : null}{" "}
+          {data.content}
+        </p>
         <div className="flex items-center justify-between md:hidden">
           <VoteButton vote={data.vote} id={data._id} />
           <ReplyButton />
