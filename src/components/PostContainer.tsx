@@ -44,13 +44,13 @@ const PostContainer = () => {
     },
     onSuccess(data) {
       const { posts, count } = data;
-      let IDs: Array<string> = [];
+      let postIDs: Array<string> = [];
       posts.forEach((post: any) => {
-        IDs.push(post._id);
+        postIDs.push(post._id);
       });
 
       setPostCount(count);
-      setPostIDs([...IDs]);
+      setPostIDs([...postIDs]);
     },
   });
 
@@ -75,12 +75,12 @@ const PostContainer = () => {
         await sanityClient
           .fetch(query, params)
           .then((morePosts) => {
-            let IDs: Array<string> = [];
+            let postIDs: Array<string> = [];
             morePosts.forEach((post: any) => {
-              IDs.push(post._id);
+              postIDs.push(post._id);
             });
 
-            setPostIDs([...IDs]);
+            setPostIDs([...IDs, ...postIDs]);
             queryClient.setQueryData(["posts"], {
               ...data,
               posts: [...data?.posts, ...morePosts],
