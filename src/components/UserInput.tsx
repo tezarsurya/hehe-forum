@@ -62,7 +62,7 @@ const UserInput = () => {
             rows={screen.width < 640 ? 2 : 3}
             placeholder="Write something..."
             required
-            className="w-full resize-none rounded-md border border-lightGray px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-grayishBlue md:px-5 md:text-base"
+            className="w-full resize-none rounded-md border border-lightGray px-3 py-2 text-sm text-darkBlue outline-none focus:ring-1 focus:ring-grayishBlue md:px-5 md:text-base"
           />
           <div className="flex items-center justify-between pt-4 md:ml-4 md:items-start md:py-0">
             {data?.user?.image ? (
