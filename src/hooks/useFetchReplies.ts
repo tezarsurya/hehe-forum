@@ -12,6 +12,7 @@ const query = `
     _createdAt,
     "authorName":author->name,
     "authorEmail":author->email,
+    "authorImage":author->image,
     replyTo->{
       _id,
       "author":author->name

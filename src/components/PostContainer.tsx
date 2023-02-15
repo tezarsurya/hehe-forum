@@ -22,6 +22,7 @@ const query = `
     _createdAt,
     "authorName":author->name,
     "authorEmail":author->email,
+    "authorImage":author->image
   }[$from...$to]`;
 
 const countQuery = `count(*[_type == 'post' && isReply == false])`;
