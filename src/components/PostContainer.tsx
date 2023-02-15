@@ -100,7 +100,7 @@ const PostContainer = () => {
   return (
     <div
       onScroll={handleScroll}
-      className="flex h-full flex-col-reverse gap-4 overflow-y-auto"
+      className="flex h-full flex-col-reverse gap-4 overflow-y-auto text-xs md:text-base"
     >
       {posts.map((post: any) => {
         const currentReplies = replies.filter(

@@ -3,17 +3,6 @@ import { FormEvent, useState } from "react";
 import Image from "next/image";
 import { useQueryClient } from "@tanstack/react-query";
 
-const query = `
-  *[_type == 'post' && isReply == false] | order(_createdAt desc) {
-    _id,
-    content,
-    vote,
-    isReply,
-    _createdAt,
-    "authorName":author->name,
-    "authorEmail":author->email,
-  }`;
-
 const UserInput = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { data } = useSession();
@@ -70,13 +59,12 @@ const UserInput = () => {
         <form onSubmit={handleSubmit} className="grid grid-rows-2 md:flex">
           <textarea
             name="content"
-            rows={3}
-            cols={30}
+            rows={screen.width < 640 ? 2 : 3}
             placeholder="Write something..."
             required
-            className="w-full resize-none rounded-md border border-lightGray px-5 py-2 outline-none focus:ring-1 focus:ring-grayishBlue"
+            className="w-full resize-none rounded-md border border-lightGray px-5 py-2 text-xs outline-none focus:ring-1 focus:ring-grayishBlue md:text-base"
           />
-          <div className="flex items-center justify-between md:ml-4 md:items-start">
+          <div className="flex items-center justify-between pt-4 md:ml-4 md:items-start md:py-0">
             {data?.user?.image ? (
               <Image
                 src={data.user.image}
@@ -88,7 +76,7 @@ const UserInput = () => {
             ) : null}
             <button
               type="submit"
-              className="rounded-lg bg-moderateBlue py-3 px-8 text-lg font-bold uppercase text-white outline-none transition-colors duration-100 ease-in hover:bg-lightGrayishBlue md:text-base"
+              className="rounded-lg bg-moderateBlue py-3 px-8 text-sm font-bold uppercase text-white outline-none transition-colors duration-100 ease-in hover:bg-lightGrayishBlue md:text-base"
             >
               {isLoading ? "loading..." : "Send"}
             </button>
