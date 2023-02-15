@@ -1,10 +1,11 @@
 import { atom } from "jotai";
 
-let localPosts, localReplies;
+let localPosts, localReplies, screenHeight;
 
 if (typeof window !== "undefined") {
   localPosts = localStorage.getItem("posts");
   localReplies = localStorage.getItem("replies");
+  screenHeight = window.screen.height;
 }
 
 const storedPosts = atom(localPosts ? JSON.parse(localPosts) : []);
