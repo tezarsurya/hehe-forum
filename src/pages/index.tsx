@@ -19,7 +19,7 @@ const App = () => {
         ) : status === "loading" ? (
           <TransitionLoading />
         ) : (
-          <div className="mx-auto flex h-screen w-full flex-col justify-between gap-2 py-8 px-6 md:w-10/12 md:gap-8 md:px-0 lg:w-6/12 2xl:w-5/12">
+          <div className="mx-auto flex h-screen w-full flex-col justify-between gap-2 py-8 px-6 md:w-10/12 md:gap-3 md:px-0 lg:w-6/12 2xl:w-5/12">
             <PostContainer />
             <UserInput />
           </div>
