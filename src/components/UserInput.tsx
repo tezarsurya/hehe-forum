@@ -62,7 +62,7 @@ const UserInput = () => {
             rows={screen.width < 640 ? 2 : 3}
             placeholder="Write something..."
             required
-            className="w-full resize-none rounded-md border border-lightGray px-5 py-2 text-sm outline-none focus:ring-1 focus:ring-grayishBlue md:text-base"
+            className="w-full resize-none rounded-md border border-lightGray px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-grayishBlue md:px-5 md:text-base"
           />
           <div className="flex items-center justify-between pt-4 md:ml-4 md:items-start md:py-0">
             {data?.user?.image ? (
@@ -76,7 +76,7 @@ const UserInput = () => {
             ) : null}
             <button
               type="submit"
-              className="rounded-lg bg-moderateBlue py-3 px-8 font-bold uppercase text-white outline-none transition-colors duration-100 ease-in hover:bg-lightGrayishBlue md:text-lg"
+              className="rounded-lg bg-moderateBlue py-3 px-8 font-bold uppercase text-white outline-none transition-colors duration-100 ease-in hover:bg-lightGrayishBlue"
             >
               {isLoading ? "loading..." : "Send"}
             </button>
