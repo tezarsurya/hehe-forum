@@ -1,47 +1,67 @@
-import { sanityClient } from "@/sanity";
+import { useMutation } from "@tanstack/react-query";
 import { MouseEvent, useState } from "react";
 
 const VoteButton = ({ vote, id }: { vote: number; id: string }) => {
   const [voteCount, setVoteCount] = useState(vote);
   const [isLoading, setIsLoading] = useState(false);
 
-  // const incrementVote = async (e: MouseEvent<HTMLButtonElement>) => {
-  //   setIsLoading(true);
-  //   await sanityClient
-  //     .patch(id)
-  //     .inc({ vote: 1 })
-  //     .commit()
-  //     .finally(() => {
-  //       setIsLoading(false);
-  //       setVoteCount((current) => current + 1);
-  //     });
-  // };
+  const mutation = useMutation({
+    mutationFn: ({
+      id,
+      action,
+    }: {
+      id: string;
+      action: "increment" | "decrement";
+    }) =>
+      fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/${
+          action === "increment" ? "incrementVote" : "decrementVote"
+        }`,
+        {
+          method: "POST",
+          body: JSON.stringify({ id }),
+        }
+      ),
+    onMutate: () => {
+      setIsLoading(true);
+    },
+    onSuccess: async (data) => {
+      const json = await data.json();
+      setVoteCount(json.vote);
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
 
-  // const decrementVote = async (e: MouseEvent<HTMLButtonElement>) => {
-  //   if (voteCount == 0) {
-  //     return;
-  //   }
+  const incrementVote = (e: MouseEvent<HTMLButtonElement>) => {
+    mutation.mutate({ id, action: "increment" });
+  };
 
-  //   setIsLoading(true);
-  //   await sanityClient
-  //     .patch(id)
-  //     .dec({ vote: 1 })
-  //     .commit()
-  //     .finally(() => {
-  //       setIsLoading(false);
-  //       setVoteCount((current) => current + 1);
-  //     });
-  // };
+  const decrementVote = async (e: MouseEvent<HTMLButtonElement>) => {
+    if (voteCount === 0) {
+      return;
+    }
+    mutation.mutate({ id, action: "decrement" });
+  };
 
   return (
-    <div className="flex h-fit w-fit items-center justify-between gap-5 rounded-lg bg-veryLightGray py-2 px-4 font-bold md:flex-col md:gap-1">
-      <button className="text-left text-2xl text-lightGrayishBlue md:text-center">
+    <div className="flex h-fit w-fit flex-row-reverse items-center justify-between gap-5 rounded-lg bg-veryLightGray py-2 px-4 font-bold md:flex-col md:gap-1">
+      <button
+        onClick={incrementVote}
+        className="text-left text-2xl text-lightGrayishBlue disabled:cursor-not-allowed md:text-center"
+        disabled={isLoading}
+      >
         +
       </button>
       <span className="text-lg text-moderateBlue">
         {isLoading ? "..." : voteCount}
       </span>
-      <button className="text-right text-2xl text-lightGrayishBlue md:text-center">
+      <button
+        onClick={decrementVote}
+        className="text-right text-2xl text-lightGrayishBlue disabled:cursor-not-allowed md:text-center"
+        disabled={isLoading}
+      >
         -
       </button>
     </div>
