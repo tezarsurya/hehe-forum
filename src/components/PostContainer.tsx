@@ -2,12 +2,11 @@ import { useFetchReplies } from "@/hooks/useFetchReplies";
 import {
   countPosts,
   paginationAtom,
-  postAtom,
   postIDs,
   replyAtom,
 } from "@/lib/jotai/atoms";
 import { sanityClient } from "@/sanity";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";
 import { UIEvent, useState } from "react";
 import Post from "./Post";
@@ -28,12 +27,12 @@ const query = `
 const countQuery = `count(*[_type == 'post' && isReply == false])`;
 
 const PostContainer = () => {
-  const [posts, setPosts] = useAtom(postAtom);
   const [IDs, setPostIDs] = useAtom(postIDs);
   const [postCount, setPostCount] = useAtom(countPosts);
   const [pagination, setPagination] = useAtom(paginationAtom);
   const [isLoadMore, setIsLoadMore] = useState(false);
   const replies = useAtomValue(replyAtom);
+  const queryClient = useQueryClient();
 
   const { isLoading, isError, data, error, isRefetching } = useQuery({
     queryKey: ["posts"],
@@ -52,7 +51,6 @@ const PostContainer = () => {
 
       setPostCount(count);
       setPostIDs([...IDs]);
-      setPosts([...posts]);
     },
   });
 
@@ -83,9 +81,14 @@ const PostContainer = () => {
             });
 
             setPostIDs([...IDs]);
-            setPosts([...posts, ...morePosts]);
+            queryClient.setQueryData(["posts"], {
+              ...data,
+              posts: [...data?.posts, ...morePosts],
+            });
           })
-          .finally(() => setIsLoadMore(false));
+          .finally(() => {
+            setIsLoadMore(false);
+          });
       }
     }
   };
@@ -103,7 +106,7 @@ const PostContainer = () => {
       onScroll={handleScroll}
       className="flex h-full flex-col-reverse gap-4 overflow-y-auto text-sm md:text-base"
     >
-      {posts.map((post: any) => {
+      {data.posts.map((post: any) => {
         const currentReplies = replies.filter(
           (postFilter: any) => postFilter.parent._id === post._id
         );
