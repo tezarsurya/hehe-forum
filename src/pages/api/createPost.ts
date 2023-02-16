@@ -2,17 +2,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 import { createClient } from "next-sanity";
 
-const query = `
-  *[_type == 'post' && isReply == false] | order(_createdAt desc) {
-    _id,
-    content,
-    vote,
-    isReply,
-    _createdAt,
-    "authorName":author->name,
-    "authorEmail":author->email,
-  }`;
-
 const client = createClient({
   projectId: "0i0lc7l1",
   dataset: "production",
@@ -45,8 +34,8 @@ export default async function handler(
     isReply: false,
     content,
   };
-  const post = await client.create(doc).catch((err) => res.status(500));
+  const newPost = await client.create(doc).catch((err) => res.status(500));
 
-  res.send(post);
+  res.send(newPost);
   res.end();
 }
