@@ -42,6 +42,7 @@ const PostContainer = () => {
       const count = await sanityClient.fetch(countQuery);
       return { posts, count };
     },
+    refetchOnWindowFocus: false,
     onSuccess(data) {
       const { posts, count } = data;
       let postIDs: Array<string> = [];
@@ -80,7 +81,7 @@ const PostContainer = () => {
               postIDs.push(post._id);
             });
 
-            setPostIDs([...IDs, ...postIDs]);
+            setPostIDs((current) => [...current, ...postIDs]);
             queryClient.setQueryData(["posts"], {
               ...data,
               posts: [...data?.posts, ...morePosts],
