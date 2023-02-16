@@ -1,45 +1,44 @@
 import { useSession } from "next-auth/react";
 import { FormEvent, useState } from "react";
 import Image from "next/image";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const UserInput = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { data } = useSession();
   const queryClient = useQueryClient();
 
+  const mutation = useMutation({
+    mutationFn: (submitData: { content: FormDataEntryValue | null }) => {
+      return fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/createPost`, {
+        method: "POST",
+        body: JSON.stringify(submitData),
+      });
+    },
+    onMutate: () => {
+      setIsLoading(true);
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["posts"],
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    onSettled: () => {
+      setIsLoading(false);
+    },
+  });
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     const rawData = new FormData(e.currentTarget);
-    const data = {
+    const formData = {
       content: rawData.get("content"),
     };
     e.preventDefault();
     e.currentTarget.reset();
-    setIsLoading(true);
-
-    const result = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/createPost`,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      }
-    )
-      .then(async (res) => {
-        await queryClient.invalidateQueries({
-          queryKey: ["posts"],
-          refetchType: "all",
-        });
-
-        return res;
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-
-    if (!result.ok) {
-      alert(result.status);
-      return;
-    }
+    mutation.mutate(formData);
   };
 
   return (
